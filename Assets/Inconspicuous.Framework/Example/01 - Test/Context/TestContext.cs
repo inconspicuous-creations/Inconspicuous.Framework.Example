@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UniRx;
 
 namespace Inconspicuous.Framework.Example.Test {
@@ -5,8 +6,10 @@ namespace Inconspicuous.Framework.Example.Test {
 	public class TestContext : Context {
 		public TestContext(IContextView contextView, params Context[] subContexts)
 			: base(contextView, subContexts) {
-			//container.Register<ICommandHandler<TestCommand, Unit>,
-			//	DimScreenEffectCommandHandlerDecorator<TestCommand, Unit>>(setup: DecoratorSetup.With());
+			ContextConfiguration.Default.Configure(container);
+			container.RegisterDecorator<ICommandHandler<StartCommand, Unit>, DebugCommandHandlerDecorator<StartCommand, Unit>>(Reuse.Singleton);
+			container.RegisterDecorator<ICommandHandler<TestCommand, Unit>, DebugCommandHandlerDecorator<TestCommand, Unit>>(Reuse.Singleton);
+			container.RegisterDecorator<ICommandHandler<MacroCommand, ICollection<object>>, DebugCommandHandlerDecorator<MacroCommand, ICollection<object>>>(Reuse.Singleton);
 		}
 
 		public override void Start() {
