@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Collections.Specialized;
 using System.ComponentModel;
 using UniRx;
 
@@ -33,12 +35,19 @@ namespace Inconspicuous.Framework {
 				.Select(_ => selector());
 		}
 
+		public static IObservable<NotifyCollectionChangedEventArgs> CollectionAsObservable(this INotifyCollectionChanged notifyCollectionChanged) {
+			return Observable.FromEvent<NotifyCollectionChangedEventHandler, NotifyCollectionChangedEventArgs>(
+				x => new NotifyCollectionChangedEventHandler((_, y) => x(y)),
+				x => notifyCollectionChanged.CollectionChanged += x,
+				x => notifyCollectionChanged.CollectionChanged -= x);
+		}
+
 		public static T AddTo<T>(this T disposable, CompositeDisposable compositeDisposable) where T : IDisposable {
 			compositeDisposable.Add(disposable);
 			return disposable;
 		}
 
-		public static void OnNext(this Subject<Unit> subject) {
+		public static void OnNext(this IObserver<Unit> subject) {
 			subject.OnNext(Unit.Default);
 		}
 
